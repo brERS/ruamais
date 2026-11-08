@@ -1,0 +1,13 @@
+{
+  "name": "RuaMais · o mapa das ruas de {{CIDADE}}",
+  "short_name": "RuaMais",
+  "description": "Mapa colaborativo de buracos e ruas sem asfalto em {{CIDADE}}/{{UF}}",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f4f1",
+  "theme_color": "#0b5cad",
+  "icons": [
+    { "src": "/icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

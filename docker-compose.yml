@@ -1,0 +1,62 @@
+# Nome fixo do projeto: contêineres e volumes não dependem do nome da pasta.
+name: ruamais
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: buracos
+      POSTGRES_USER: buracos
+      POSTGRES_PASSWORD: ${DB_SENHA:-buracos_dev}
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U buracos -d buracos"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://buracos:${DB_SENHA:-buracos_dev}@db:5432/buracos
+      JWT_SEGREDO: ${JWT_SEGREDO:?defina JWT_SEGREDO no .env}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_SENHA: ${ADMIN_SENHA:-}
+      TILE_URL: ${TILE_URL:-https://tile.openstreetmap.org/{z}/{x}/{y}.png}
+      TILE_ATRIBUICAO: ${TILE_ATRIBUICAO:-}
+      COOKIE_SEGURO: ${COOKIE_SEGURO:-false}
+      CIDADE: ${CIDADE:-resende-rj}
+    volumes:
+      # Em desenvolvimento, o código local é montado no contêiner (reinicie o app após mudar src/).
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./db:/app/db
+      - ./cidades:/app/cidades
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Opcional: HTTPS para testar pelo celular na rede local (GPS exige HTTPS).
+  # Uso: docker compose --profile https up -d   →   https://<IP-do-PC>:3443
+  https:
+    image: caddy:2.8.4-alpine
+    profiles: ["https"]
+    restart: unless-stopped
+    environment:
+      LAN_IP: ${LAN_IP:-127.0.0.1}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+    ports:
+      - "3443:3443"
+    depends_on:
+      - app
+
+volumes:
+  dbdata:
+  caddydata:

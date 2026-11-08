@@ -1,0 +1,14 @@
+{
+  "nome": "Resende",
+  "uf": "RJ",
+  "codigo_ibge": "3304201",
+  "centro": [
+    -22.468363,
+    -44.446349
+  ],
+  "zoom": 14,
+  "fontes": {
+    "limite": "IBGE, malha municipal (qualidade máxima)",
+    "ruas_e_bairros": "OpenStreetMap (© colaboradores do OpenStreetMap, licença ODbL)"
+  }
+}

@@ -1,0 +1,14 @@
+# HTTPS para testes na rede local (perfil "https" do docker compose).
+# O certificado é gerado localmente: o celular vai mostrar um aviso de segurança na primeira vez.
+# Sem HTTPS, o navegador do celular bloqueia o GPS ("Onde estou").
+{
+	local_certs
+	skip_install_trust
+	# Acesso por IP não envia o nome do site (SNI); usa o certificado do IP da rede.
+	default_sni {$LAN_IP}
+}
+
+https://{$LAN_IP}:3443, https://localhost:3443 {
+	tls internal
+	reverse_proxy app:3000
+}

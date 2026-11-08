@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>Painel de gestão · RuaMais</title>
+  <meta name="theme-color" content="#0b5cad">
+  <link rel="icon" href="/icone.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/estilo.css">
+</head>
+<body>
+  <a class="pular" href="#conteudo-principal">Pular para o conteúdo</a>
+  <header class="topo">
+    <a class="marca" href="/"><img src="/icone.svg" alt="" width="30" height="30"> RuaMais</a>
+    <nav aria-label="Conta">
+      <span id="quem"></span>
+      <a href="#" id="sair" hidden>Sair</a>
+    </nav>
+  </header>
+
+  <main class="conteudo" id="conteudo-principal" tabindex="-1">
+    <h1>Painel de gestão</h1>
+    <section id="login" class="cartao" hidden aria-labelledby="titulo-login">
+      <h2 id="titulo-login">Entrar</h2>
+      <p class="suave">Acesso restrito à equipe do site.</p>
+      <form id="form-login" class="pilha">
+        <label class="campo">E-mail <input type="email" name="email" required autocomplete="username"></label>
+        <label class="campo">Senha <input type="password" name="senha" required autocomplete="current-password"></label>
+        <button class="primario" type="submit">Entrar</button>
+      </form>
+    </section>
+
+    <section id="painel-gestao" hidden>
+      <nav class="abas" id="abas" aria-label="Listas do painel"></nav>
+      <h2 id="titulo-aba" tabindex="-1"></h2>
+      <div id="conteudo-aba"></div>
+    </section>
+  </main>
+
+  <script src="/comum.js"></script>
+  <script src="/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>RuaMais · o mapa das ruas de {{CIDADE}}</title>
+  <meta name="description" content="Mapa colaborativo de buracos e ruas sem asfalto em {{CIDADE}}/{{UF}}">
+  <meta name="theme-color" content="#0b5cad">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icone.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icone.svg">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+  <link rel="stylesheet" href="/estilo.css">
+</head>
+<body>
+  <div class="pagina-mapa">
+    <a class="pular" href="#lista" id="pular-lista">Ver os pontos em lista (sem mapa)</a>
+
+    <header class="topo">
+      <a class="marca" href="/"><img src="/icone.svg" alt="" width="30" height="30"> RuaMais</a>
+      <button id="btn-menu" type="button" class="botao-menu" aria-expanded="false" aria-controls="menu">
+        <span aria-hidden="true">☰</span> Menu
+      </button>
+    </header>
+
+    <nav id="menu" class="menu" hidden aria-label="Menu principal">
+      <ul>
+        <li><button type="button" id="menu-como">Como funciona</button></li>
+        <li><button type="button" id="menu-meus">Pontos que acompanho</button></li>
+        <li><a href="/relatorio" id="link-relatorio">Relatório do mês</a></li>
+        <li><a href="/calor" id="link-calor">Mapa de calor e ranking de regiões</a></li>
+        <li><button type="button" id="menu-sim">Ver simulação do site em uso</button></li>
+        <li><label class="alternar"><input type="checkbox" id="chk-verif"> Mostrar pontos em verificação</label></li>
+        <li><label class="alternar"><input type="checkbox" id="chk-letra"> Letra maior</label></li>
+        <li><a href="/privacidade#neutralidade">Regra de neutralidade</a></li>
+        <li><a href="/privacidade">Privacidade, regras e dados abertos</a></li>
+      </ul>
+    </nav>
+
+    <div id="faixa-sim" class="faixa-sim" hidden role="region" aria-label="Aviso de simulação">
+      <span><strong>Simulação:</strong> dados fictícios, nada é salvo.</span>
+      <label class="sr-only" for="sel-sim">Cenário da simulação</label>
+      <select id="sel-sim"></select>
+      <button id="sair-sim" type="button" class="pequeno">Sair</button>
+    </div>
+
+    <main class="area-mapa" id="principal">
+      <h1 class="sr-only">Mapa de buracos e ruas sem asfalto de {{CIDADE}}</h1>
+
+      <div id="mapa" aria-label="Mapa. Use as setas do teclado para mover. A lista de pontos é a alternativa em texto."></div>
+
+      <div class="segmentado" id="segmentado" role="group" aria-label="Forma de ver os pontos">
+        <button type="button" id="ver-mapa" aria-pressed="true">Mapa</button>
+        <button type="button" id="ver-lista" aria-pressed="false">Lista</button>
+      </div>
+
+      <section id="legenda" class="legenda" hidden aria-labelledby="titulo-legenda">
+        <h2 id="titulo-legenda">Legenda</h2>
+        <div id="legenda-conteudo"></div>
+      </section>
+
+      <section id="lista" class="lista" hidden aria-labelledby="titulo-lista" tabindex="-1">
+        <div class="lista-interna">
+          <h2 id="titulo-lista" tabindex="-1">Pontos marcados</h2>
+          <div class="filtros-lista">
+            <label class="campo">Tipo
+              <select id="lf-tipo">
+                <option value="">Todos</option>
+                <option value="buraco">Buracos</option>
+                <option value="rua_sem_asfalto">Ruas sem asfalto</option>
+              </select>
+            </label>
+            <label class="campo">Situação
+              <select id="lf-sit">
+                <option value="abertos">Abertos</option>
+                <option value="resolvidos">Resolvidos</option>
+                <option value="todos">Todos</option>
+              </select>
+            </label>
+          </div>
+          <p id="lista-resumo" class="suave" aria-live="polite"></p>
+          <ul id="lista-itens" class="lista-itens"></ul>
+          <p><button type="button" id="lista-mais" class="largo" hidden>Mostrar mais</button></p>
+        </div>
+      </section>
+
+      <!-- Marcação: pino fixo no centro; a pessoa move o mapa por baixo -->
+      <div id="mira" class="mira" hidden aria-hidden="true">
+        <svg width="44" height="56" viewBox="0 0 44 56">
+          <path d="M22 2C11 2 2 11 2 22c0 15 20 32 20 32s20-17 20-32C42 11 33 2 22 2z" fill="#0b5cad" stroke="#fff" stroke-width="3"/>
+          <circle cx="22" cy="22" r="7" fill="#fff"/>
+        </svg>
+      </div>
+      <div id="dica-local" class="dica-local" hidden>
+        <p class="passo">Passo 1 de 3</p>
+        <p id="dica-local-texto" tabindex="-1"><strong>Mova o mapa até o pino azul ficar em cima do problema.</strong></p>
+        <p class="suave">Use o dedo, ou as setas do teclado com o mapa selecionado. Aproxime bastante para acertar a rua.</p>
+      </div>
+      <div id="acoes-local" class="acoes-local" hidden>
+        <button type="button" id="local-cancelar">Cancelar</button>
+        <button type="button" id="local-ok" class="primario">Este é o local</button>
+      </div>
+
+      <button id="btn-marcar" type="button" class="primario flutuante"><span aria-hidden="true">＋</span> Marcar problema</button>
+
+      <section id="painel" class="painel" hidden role="dialog" aria-modal="false" aria-labelledby="painel-titulo"></section>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+  <script src="/comum.js"></script>
+  <script src="/simulacao.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

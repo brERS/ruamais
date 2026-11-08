@@ -1,0 +1,6 @@
+node_modules
+.env
+# Anotações pessoais de planejamento (não publicar)
+ideia-*.md
+# Gerada por scripts/gerar-demo.js (publicar separadamente)
+demo-site/

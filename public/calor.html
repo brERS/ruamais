@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mapa de calor · RuaMais</title>
+  <meta name="theme-color" content="#0b5cad">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icone.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+  <link rel="stylesheet" href="/estilo.css">
+  <style>
+    #mapa-calor { height: 48vh; min-height: 300px; border-radius: var(--raio); border: 1px solid var(--borda); }
+    @media (min-width: 760px) { #mapa-calor { height: 60vh; } }
+    .filtros { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .filtros .inteiro { grid-column: 1 / -1; }
+    @media (min-width: 760px) { .filtros { grid-template-columns: repeat(5, 1fr); } .filtros .inteiro { grid-column: auto; } }
+    .escala { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; margin: 8px 0; }
+    .escala span.cor { width: 28px; height: 14px; border: 1px solid #0003; }
+  </style>
+</head>
+<body>
+  <a class="pular" href="#ranking-titulo">Pular para o ranking em tabela</a>
+  <header class="topo">
+    <a class="marca" href="/" id="link-mapa"><img src="/icone.svg" alt="" width="30" height="30"> RuaMais</a>
+    <nav aria-label="Páginas">
+      <a href="/" id="link-mapa-2">Mapa</a>
+      <a href="/privacidade">Privacidade</a>
+    </nav>
+  </header>
+
+  <div id="faixa-sim" class="faixa-sim" hidden role="region" aria-label="Aviso de simulação">
+    <span><strong>Simulação:</strong> pontos fictícios, nada é salvo.</span>
+  </div>
+
+  <main class="conteudo">
+    <h1>Mapa de calor</h1>
+    <p class="suave">Só entram pontos confirmados por pelo menos 3 pessoas, com peso pela gravidade.</p>
+
+    <form class="filtros" aria-label="Filtros">
+      <label class="campo inteiro">Dados
+        <select id="f-dados">
+          <option value="">Reais</option>
+        </select>
+      </label>
+      <label class="campo">Camada
+        <select id="f-tipo">
+          <option value="buraco">Buracos</option>
+          <option value="rua_sem_asfalto">Ruas sem asfalto</option>
+        </select>
+      </label>
+      <label class="campo">Situação
+        <select id="f-situacao">
+          <option value="abertos">Abertos</option>
+          <option value="resolvidos">Resolvidos</option>
+          <option value="">Todos</option>
+        </select>
+      </label>
+      <label class="campo">Período
+        <select id="f-dias">
+          <option value="30">Últimos 30 dias</option>
+          <option value="90">Últimos 90 dias</option>
+          <option value="365">Último ano</option>
+          <option value="" selected>Desde o início</option>
+        </select>
+      </label>
+      <label class="campo inteiro">Visão
+        <select id="f-visao">
+          <option value="mancha">Mancha de calor</option>
+          <option value="bairros">Regiões pintadas</option>
+        </select>
+      </label>
+    </form>
+
+    <div id="mapa-calor" aria-label="Mapa de calor. Os mesmos dados estão na tabela de ranking abaixo."></div>
+    <div id="escala" class="escala" aria-hidden="true"></div>
+    <p id="vazio" class="suave" hidden aria-live="polite"></p>
+    <p class="aviso-caixa">
+      <strong>Atenção:</strong> mais reportes não significa mais carência. Bairros com menos acesso à internet podem aparecer
+      “frios” mesmo tendo muitos problemas.
+    </p>
+    <p class="selo-neutro"><strong>Site neutro:</strong>
+      <span>não apoia partido, candidato nem governo. Os dados são abertos para todos igualmente e não podem ser apresentados como apoio deste site a nenhuma causa política.
+      <a href="/privacidade#neutralidade">Ler a regra</a></span></p>
+
+    <h2 id="ranking-titulo" tabindex="-1">Ranking de regiões</h2>
+    <p id="nota-regioes" class="suave" hidden>
+      Regiões aproximadas: área mais próxima de cada bairro ou distrito no OpenStreetMap. Não são os limites oficiais.
+    </p>
+    <p class="suave">Tempo de espera: dias entre a marcação e a solução, ou até hoje se ainda aberto.</p>
+    <div class="tabela-rolagem" role="region" aria-labelledby="ranking-titulo" tabindex="0">
+      <table>
+        <caption class="sr-only">Ranking de bairros por problemas abertos, com tempo de espera</caption>
+        <thead>
+          <tr>
+            <th scope="col">Região</th><th scope="col">Abertos</th><th scope="col">Peso (gravidade)</th>
+            <th scope="col">Resolvidos</th><th scope="col">Espera média (abertos)</th><th scope="col">Espera média (resolvidos)</th>
+          </tr>
+        </thead>
+        <tbody id="ranking"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"
+          integrity="sha384-mFKkGiGvT5vo1fEyGCD3hshDdKmW3wzXW/x+fWriYJArD0R3gawT6lMvLboM22c0" crossorigin="anonymous"></script>
+  <script src="/comum.js"></script>
+  <script src="/simulacao.js"></script>
+  <script src="/calor.js"></script>
+</body>
+</html>

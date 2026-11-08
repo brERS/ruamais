@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Relatório do mês · RuaMais</title>
+  <meta name="description" content="Relatório mensal dos buracos e ruas sem asfalto marcados por moradores de {{CIDADE}}">
+  <meta name="theme-color" content="#0b5cad">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icone.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/estilo.css">
+  <style>
+    .controles-relatorio { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
+    @media (min-width: 600px) { .controles-relatorio { grid-template-columns: 1fr 1fr; } }
+    .controles-relatorio label { min-width: 0; }
+    .controles-relatorio select { width: 100%; }
+    .acoes-relatorio { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 20px; }
+    .numeros { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
+    @media (min-width: 760px) { .numeros { grid-template-columns: repeat(4, 1fr); } }
+    .numero { background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); padding: 12px; }
+    .numero strong { display: block; font-size: 1.8rem; line-height: 1.1; }
+    .numero span { font-size: 0.88rem; color: var(--texto-suave); }
+    .ranking-lista { padding-left: 1.4em; margin: 0; }
+    .ranking-lista li { padding: 8px 0; border-bottom: 1px solid var(--borda); }
+    .ranking-lista li:last-child { border-bottom: 0; }
+    .ranking-lista .suave { display: block; }
+    .cabecalho-relatorio h1 { margin-bottom: 2px; }
+    @media print {
+      .topo, .faixa-sim, .controles-relatorio, .acoes-relatorio, .pular, .avisos, .so-tela { display: none !important; }
+      body { background: #fff; font-size: 12pt; }
+      .conteudo { max-width: none; padding: 0; }
+      .cartao, .numero { break-inside: avoid; border-color: #999; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="pular" href="#conteudo-principal">Pular para o conteúdo</a>
+  <header class="topo">
+    <a class="marca" href="/" id="link-mapa"><img src="/icone.svg" alt="" width="30" height="30"> RuaMais</a>
+    <nav aria-label="Páginas">
+      <a href="/" id="link-mapa-2">Mapa</a>
+      <a href="/calor">Mapa de calor</a>
+    </nav>
+  </header>
+
+  <div id="faixa-sim" class="faixa-sim" hidden role="region" aria-label="Aviso de simulação">
+    <span><strong>Simulação:</strong> pontos fictícios. Não divulgue este relatório.</span>
+  </div>
+
+  <main class="conteudo" id="conteudo-principal" tabindex="-1">
+    <form class="controles-relatorio" aria-label="Escolha do relatório">
+      <label class="campo">Mês
+        <select id="f-mes"></select>
+      </label>
+      <label class="campo">Dados
+        <select id="f-dados"><option value="">Reais</option></select>
+      </label>
+    </form>
+
+    <div id="relatorio" aria-live="polite">Carregando…</div>
+
+    <div class="acoes-relatorio">
+      <button type="button" class="primario" id="btn-copiar">Copiar resumo em texto</button>
+      <button type="button" id="btn-imprimir">Imprimir ou salvar em PDF</button>
+    </div>
+    <p id="texto-manual" hidden>
+      <label class="campo">Resumo (copie manualmente)
+        <textarea id="texto-resumo" rows="12" readonly></textarea>
+      </label>
+    </p>
+  </main>
+
+  <script src="/comum.js"></script>
+  <script src="/simulacao.js"></script>
+  <script src="/relatorio.js"></script>
+</body>
+</html>
